@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto_Wallet</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Tahoma:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.6/dist/web3.min.js"></script>
+
+
+    <style>
+        body {
+            font-family: 'Tahoma', sans-serif;
+            color: green;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: #FFEBEB;
+        }
+
+        #address {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: black;
+        }
+
+        #cryptolist {
+            position: absolute;
+            top: 40px;
+            right: 10px;
+            color: green;
+            display: flex;
+            align-items: center;
+        }
+
+        #cryptolist span {
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        #cryptolist img {
+            margin-right: 10px;
+        }
+
+        #crypto-selector {
+            margin-top: 20px;
+        }
+
+        #selected-crypto,
+        #current-address,
+        #current-balance,
+        #transaction-block {
+            margin-top: 10px;
+        }
+
+        #transaction-block input {
+            margin-bottom: 15px;
+            border: 3px dotted;
+            width: 230px;
+        }
+
+        #transaction-block button {
+            color: white;
+            background-color: green;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+                h2 {
+            margin-right: auto;
+        }
+        </style>
+</head>
+
+<body>
+
+    <h2>Crypto_Wallet</h2>
+
+    <div id="address">
+        <strong style="color: green;">Current Address:</strong><em id="current-address"></em>
+    </div>
+
+    <div id="cryptolist">
+        <strong style="margin-right: 20px;">Your Crypto:</strong>
+        <span id="ETH" onclick="updateSelectedCryptoFromList('ETH')">ETH</span>
+        <img src="./assets/Eth-diamond-rainbow.png" width="15" height="20">
+        <span id="BTC" onclick="updateSelectedCryptoFromList('BTC')">BTC</span>
+        <img src="./assets/pngwing.com.png" width="20" height="20">
+        <span id="DOT" onclick="updateSelectedCryptoFromList('DOT')">DOT</span>
+        <img src="./assets/Polkadot-Logo-PNG4.png" width="35" height="20">
+    </div>
+
+  <div id="crypto-selector">
+        <label for="cryptos">Choose a cryptocurrency:</label>
+        <select id="cryptos" onchange="updateSelectedCrypto()">
+            <option value="ETH" selected>ETH</option>
+            <option value="BTC">BTC</option>
+            <option value="DOT">DOT</option>
+        </select>
+    </div>
+
+    <div id="selected-crypto">
+        <label for="crypto-display">Crypto:</label> <span id="crypto-display">ETH</span>
+    </div>
+
+    <div id="current-balance">
+        <label for="balance-display">Balance:</label> <span id="balance">0 ETH</span>
+    </div>
+
+    <div id="transaction-block">
+<label for="transfer_address">Transfer Address:</label>
+        <input type="text" id="transfer_address" placeholder="Enter transfer address">
+        <br>
+        <label for="transfer_amount">Transfer Amount:</label>
+        <input type="text" id="transfer_amount" placeholder="Enter transfer amount">
+        <br>
+        <button id="send_button" onclick="sendTransaction()">Send</button>
+    </div>
+    <script src="./Application.js"></script>
+    <script src="./ui/WalletUI.js"></script>
+    <script src="./ui/ListenerManager.js"></script>
+    <script src="./ui/Renderer.js"></script>
+    <script src="./blockchain/BlockchainService.js"></script>
+    <script src="./converter/Converter.js"></script>
+
+
+    <script>
+    function updateSelectedCrypto() {
+        var selectElement = document.getElementById("cryptos");
+        var selectedCryptoDisplay = document.getElementById("crypto-display");
+        var selectedCryptoSpan = document.getElementById(selectElement.value);
+        var balanceDisplay = document.getElementById("balance-display");
+
+        selectedCryptoDisplay.textContent = selectElement.value;
+
+        document.querySelectorAll("#cryptolist span").forEach(span => {
+            span.style.color = "green";
+            span.style.fontWeight = "normal";
+        });
+        selectedCryptoSpan.style.color = "black";
+        selectedCryptoSpan.style.fontWeight = "bold";
+        getEthBalance();
+        walletUi.renderMetamaskData(); // Додайте цей виклик
+    }
+</script>
+
+
+<script>
+function getEthBalance() {
+    ethereum.request({ method: 'eth_requestAccounts' })
+        .then((accounts) => {
+            const currentAddress = accounts[0];
+            return web3.eth.getBalance(currentAddress);
+        })
+        .then((balance) => {
+            const balanceInEth = web3.utils.fromWei(balance, "ether");
+            console.log("MetaMask balance:", balanceInEth + " ETH");
+            updateBalanceDisplay(balanceInEth);
+        })
+        .catch((error) => {
+            console.error(" MetaMask balance error:", error);
+        });
+}
+
+function updateBalanceDisplay(balance) {
+    const balanceDisplay = document.getElementById("balance-display");
+    balanceDisplay.textContent = balance + " ETH";
+}
+updateSelectedCrypto();
+
+</script>
+
+
+<script>
+    function updateSelectedCryptoFromList(crypto) {
+        var selectElement = document.getElementById("cryptos");
+        selectElement.value = crypto;
+        updateSelectedCrypto();
+    }
+
+
+    function getEthBalance() {
+        app.getSepoliaBalance()
+            .then(function (balance) {
+                console.log("Sepolia Balance:", balance + " ETH");
+                balanceDisplay.textContent = balance + " ETH";
+            })
+            .catch(function (error) {
+                console.error("balance error:", error);
+            });
+    }
+
+    ethereum.request({ method: 'eth_requestAccounts' })
+    .then((accounts) => {
+        const currentAddress = accounts[0];
+        // ?????????? код
+    })
+    .catch((error) => {
+        console.error("MetaMask access error:", error);
+    });
+
+
+    web3.eth.getBalance(currentAddress)
+    .then((balance) => {
+        const balanceInEth = web3.utils.fromWei(balance, "ether");
+        console.log("balance MetaMask:", balanceInEth + " ETH");
+    })
+    .catch((error) => {
+        console.error("MetaMask balance error:", error);
+    });
+
+</script>
+
+
+    <script>
+        let ethLib = new EthLib();
+        document.addEventListener("DOMContentLoaded", function () {
+            ethLib.someMethod(10, "0xE862Ca4b9389d9bC306c2367A36B8Bd45f6838Bb");
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"></script>
+
+    <script>
+        renderer.renderUI();
+    </script>
+
+    <script src="./main.js"></script>
+</body>
+
+</html>
+
